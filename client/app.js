@@ -10,7 +10,11 @@ async function register(){
     const password =
     document.getElementById('password').value;
 
-    const res = await fetch(`${API}/auth/register`,{
+    const adminKey =
+    document.getElementById('adminKey').value;
+
+    const res =
+    await fetch(`${API}/auth/register`,{
 
         method:'POST',
 
@@ -19,8 +23,11 @@ async function register(){
         },
 
         body:JSON.stringify({
+
             username,
-            password
+            password,
+            adminKey
+
         })
 
     });
@@ -39,7 +46,8 @@ async function login(){
     const password =
     document.getElementById('password').value;
 
-    const res = await fetch(`${API}/auth/login`,{
+    const res =
+    await fetch(`${API}/auth/login`,{
 
         method:'POST',
 
@@ -55,6 +63,20 @@ async function login(){
     });
 
     const data = await res.json();
+
+    if(data.banned){
+
+        document
+        .getElementById('authBox')
+        .classList.add('hidden');
+
+        document
+        .getElementById('bannedBox')
+        .classList.remove('hidden');
+
+        return;
+
+    }
 
     if(data.token){
 
@@ -78,13 +100,16 @@ function logout(){
 
 async function loadUser(){
 
-    document.getElementById('authBox')
+    document
+    .getElementById('authBox')
     .classList.add('hidden');
 
-    document.getElementById('app')
+    document
+    .getElementById('app')
     .classList.remove('hidden');
 
-    const res = await fetch(`${API}/notes/me`,{
+    const res =
+    await fetch(`${API}/notes/me`,{
 
         headers:{
             authorization:token
@@ -103,17 +128,31 @@ async function loadUser(){
 
     if(user.eyesActive){
 
-        document.getElementById('eyesBadge')
+        document
+        .getElementById('eyesBadge')
         .innerHTML =
+
         '👁 SHINIGAMI EYES ACTIVE';
 
     }
 
     if(user.role === 'admin'){
 
+        document
+        .getElementById('userPanel')
+        .style.display = 'none';
+
         loadAdminPanel();
 
+        return;
+
     }
+
+    loadNotes(user);
+
+}
+
+function loadNotes(user){
 
     const notesDiv =
     document.getElementById('notes');
@@ -158,7 +197,8 @@ async function loadUser(){
 
 async function loadAdminPanel(){
 
-    const res = await fetch(`${API}/notes/all-users`,{
+    const res =
+    await fetch(`${API}/notes/all-users`,{
 
         headers:{
             authorization:token
@@ -172,7 +212,7 @@ async function loadAdminPanel(){
     document.getElementById('adminPanel');
 
     adminDiv.innerHTML =
-    '<h2>ADMIN PANEL</h2>';
+    '<h1>ADMIN PANEL</h1>';
 
     users.forEach(user=>{
 
@@ -180,7 +220,12 @@ async function loadAdminPanel(){
 
         <div class="note">
 
-        <h3>${user.username}</h3>
+        <h2>${user.username}</h2>
+
+        <p>
+        Role:
+        ${user.role}
+        </p>
 
         <p>
         Life:
@@ -188,12 +233,71 @@ async function loadAdminPanel(){
         Years
         </p>
 
-        <button
-        onclick="deleteUser('${user._id}')">
+        <p>
+        Status:
+        ${user.banned ? 'BANNED' : 'ACTIVE'}
+        </p>
 
-        DELETE USER
+        <button
+        onclick="banUser('${user._id}')">
+
+        BAN
 
         </button>
+
+        <button
+        onclick="unbanUser('${user._id}')">
+
+        UNBAN
+
+        </button>
+
+        <button
+        onclick="resetLife('${user._id}')">
+
+        RESET LIFE
+
+        </button>
+
+        <button
+        onclick="addLife('${user._id}')">
+
+        ADD 1 YEAR
+
+        </button>
+
+        <div>
+
+        <h3>User Notes</h3>
+
+        ${
+            user.notes.map(note=>`
+
+            <div class="note">
+
+            <p>
+            Victim:
+            ${note.victimName}
+            </p>
+
+            <p>
+            ${note.reason}
+            </p>
+
+            <p>
+            ${note.details}
+            </p>
+
+            <p>
+            ${note.status}
+            </p>
+
+            </div>
+
+            `).join('')
+        }
+
+        </div>
 
         </div>
 
@@ -203,11 +307,59 @@ async function loadAdminPanel(){
 
 }
 
-async function deleteUser(id){
+async function banUser(id){
 
-    await fetch(`${API}/notes/delete-user/${id}`,{
+    await fetch(`${API}/notes/ban/${id}`,{
 
-        method:'DELETE',
+        method:'POST',
+
+        headers:{
+            authorization:token
+        }
+
+    });
+
+    loadAdminPanel();
+
+}
+
+async function unbanUser(id){
+
+    await fetch(`${API}/notes/unban/${id}`,{
+
+        method:'POST',
+
+        headers:{
+            authorization:token
+        }
+
+    });
+
+    loadAdminPanel();
+
+}
+
+async function resetLife(id){
+
+    await fetch(`${API}/notes/reset-life/${id}`,{
+
+        method:'POST',
+
+        headers:{
+            authorization:token
+        }
+
+    });
+
+    loadAdminPanel();
+
+}
+
+async function addLife(id){
+
+    await fetch(`${API}/notes/add-life/${id}`,{
+
+        method:'POST',
 
         headers:{
             authorization:token
@@ -252,7 +404,9 @@ async function writeNote(){
     loadUser();
 
     setTimeout(()=>{
+
         loadUser();
+
     },41000);
 
 }
