@@ -12,7 +12,8 @@ router.post('/register', async(req,res)=>{
 
     const {username,password,adminKey} = req.body;
 
-    const exists = await User.findOne({username});
+    const exists =
+    await User.findOne({username});
 
     if(exists){
 
@@ -22,7 +23,8 @@ router.post('/register', async(req,res)=>{
 
     }
 
-    const hash = await bcrypt.hash(password,10);
+    const hash =
+    await bcrypt.hash(password,10);
 
     const randomYears =
     Math.floor(Math.random()*60)+20;
@@ -35,15 +37,20 @@ router.post('/register', async(req,res)=>{
 
     }
 
+    const lifeDays =
+    randomYears * 365;
+
     const user = new User({
 
         username,
 
-        password: hash,
+        password:hash,
 
         role,
 
-        lifeDays: randomYears * 365
+        originalLifeDays:lifeDays,
+
+        lifeDays:lifeDays
 
     });
 
@@ -59,12 +66,21 @@ router.post('/login', async(req,res)=>{
 
     const {username,password} = req.body;
 
-    const user = await User.findOne({username});
+    const user =
+    await User.findOne({username});
 
     if(!user){
 
         return res.json({
             msg:'User not found'
+        });
+
+    }
+
+    if(user.dead){
+
+        return res.json({
+            dead:true
         });
 
     }
@@ -78,7 +94,10 @@ router.post('/login', async(req,res)=>{
     }
 
     const match =
-    await bcrypt.compare(password,user.password);
+    await bcrypt.compare(
+        password,
+        user.password
+    );
 
     if(!match){
 
