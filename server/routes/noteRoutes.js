@@ -14,6 +14,40 @@ router.get('/me', auth, async(req,res)=>{
 
 });
 
+router.get('/all-users', auth, async(req,res)=>{
+
+    if(req.user.role !== 'admin'){
+
+        return res.status(403).json({
+            msg:'Access denied'
+        });
+
+    }
+
+    const users = await User.find();
+
+    res.json(users);
+
+});
+
+router.delete('/delete-user/:id', auth, async(req,res)=>{
+
+    if(req.user.role !== 'admin'){
+
+        return res.status(403).json({
+            msg:'Access denied'
+        });
+
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.json({
+        msg:'User deleted'
+    });
+
+});
+
 router.post('/write', auth, async(req,res)=>{
 
     const user = await User.findById(req.user.id);
@@ -56,9 +90,11 @@ router.post('/eyes', auth, async(req,res)=>{
     const user = await User.findById(req.user.id);
 
     if(user.eyesActive){
+
         return res.json({
             msg:'Already active'
         });
+
     }
 
     user.lifeDays =
