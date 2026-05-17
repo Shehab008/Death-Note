@@ -100,14 +100,6 @@ function logout(){
 
 async function loadUser(){
 
-    document
-    .getElementById('authBox')
-    .classList.add('hidden');
-
-    document
-    .getElementById('app')
-    .classList.remove('hidden');
-
     const res =
     await fetch(`${API}/notes/me`,{
 
@@ -118,6 +110,55 @@ async function loadUser(){
     });
 
     const user = await res.json();
+
+    if(user.deleted){
+
+        localStorage.removeItem('token');
+
+        document.body.innerHTML =
+
+        `
+
+        <div style="text-align:center;
+        margin-top:100px;
+        color:red;
+        font-size:40px;">
+
+        USER DELETED
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+    if(user.banned){
+
+        document
+        .getElementById('authBox')
+        .classList.add('hidden');
+
+        document
+        .getElementById('app')
+        .classList.add('hidden');
+
+        document
+        .getElementById('bannedBox')
+        .classList.remove('hidden');
+
+        return;
+
+    }
+
+    document
+    .getElementById('authBox')
+    .classList.add('hidden');
+
+    document
+    .getElementById('app')
+    .classList.remove('hidden');
 
     document.getElementById('life')
     .innerHTML =
@@ -253,6 +294,13 @@ async function loadAdminPanel(){
         </button>
 
         <button
+        onclick="deleteUser('${user._id}')">
+
+        DELETE USER
+
+        </button>
+
+        <button
         onclick="resetLife('${user._id}')">
 
         RESET LIFE
@@ -339,6 +387,22 @@ async function unbanUser(id){
 
 }
 
+async function deleteUser(id){
+
+    await fetch(`${API}/notes/delete-user/${id}`,{
+
+        method:'DELETE',
+
+        headers:{
+            authorization:token
+        }
+
+    });
+
+    loadAdminPanel();
+
+}
+
 async function resetLife(id){
 
     await fetch(`${API}/notes/reset-life/${id}`,{
@@ -382,6 +446,7 @@ async function writeNote(){
     const details =
     document.getElementById('details').value;
 
+    const res =
     await fetch(`${API}/notes/write`,{
 
         method:'POST',
@@ -401,6 +466,14 @@ async function writeNote(){
 
     });
 
+    const data = await res.json();
+
+    if(data.banned){
+
+        loadUser();
+        return;
+    }
+
     loadUser();
 
     setTimeout(()=>{
@@ -413,6 +486,7 @@ async function writeNote(){
 
 async function activateEyes(){
 
+    const res =
     await fetch(`${API}/notes/eyes`,{
 
         method:'POST',
@@ -422,6 +496,14 @@ async function activateEyes(){
         }
 
     });
+
+    const data = await res.json();
+
+    if(data.banned){
+
+        loadUser();
+        return;
+    }
 
     loadUser();
 
