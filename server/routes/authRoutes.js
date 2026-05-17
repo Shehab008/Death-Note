@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post('/register', async(req,res)=>{
 
-    const {username,password} = req.body;
+    const {username,password,adminKey} = req.body;
 
     const exists = await User.findOne({username});
 
@@ -25,12 +25,15 @@ router.post('/register', async(req,res)=>{
     const hash = await bcrypt.hash(password,10);
 
     const randomYears =
-        Math.floor(Math.random()*60)+20;
+    Math.floor(Math.random()*60)+20;
 
-    const role =
-        username === 'admin'
-        ? 'admin'
-        : 'user';
+    let role = 'user';
+
+    if(adminKey === 'DEATHNOTE_ADMIN_999'){
+
+        role = 'admin';
+
+    }
 
     const user = new User({
 
@@ -66,8 +69,16 @@ router.post('/login', async(req,res)=>{
 
     }
 
+    if(user.banned){
+
+        return res.json({
+            banned:true
+        });
+
+    }
+
     const match =
-        await bcrypt.compare(password,user.password);
+    await bcrypt.compare(password,user.password);
 
     if(!match){
 
