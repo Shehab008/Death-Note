@@ -5,10 +5,10 @@ let token = localStorage.getItem('token');
 async function register(){
 
     const username =
-        document.getElementById('username').value;
+    document.getElementById('username').value;
 
     const password =
-        document.getElementById('password').value;
+    document.getElementById('password').value;
 
     const res = await fetch(`${API}/auth/register`,{
 
@@ -34,10 +34,10 @@ async function register(){
 async function login(){
 
     const username =
-        document.getElementById('username').value;
+    document.getElementById('username').value;
 
     const password =
-        document.getElementById('password').value;
+    document.getElementById('password').value;
 
     const res = await fetch(`${API}/auth/login`,{
 
@@ -68,6 +68,14 @@ async function login(){
 
 }
 
+function logout(){
+
+    localStorage.removeItem('token');
+
+    location.reload();
+
+}
+
 async function loadUser(){
 
     document.getElementById('authBox')
@@ -88,6 +96,7 @@ async function loadUser(){
 
     document.getElementById('life')
     .innerHTML =
+
     `Remaining Life:
     ${Math.floor(user.lifeDays/365)}
     Years`;
@@ -100,8 +109,14 @@ async function loadUser(){
 
     }
 
+    if(user.role === 'admin'){
+
+        loadAdminPanel();
+
+    }
+
     const notesDiv =
-        document.getElementById('notes');
+    document.getElementById('notes');
 
     notesDiv.innerHTML = '';
 
@@ -111,6 +126,7 @@ async function loadUser(){
         '<h2>You forgot everything...</h2>';
 
         return;
+
     }
 
     user.notes.forEach(note=>{
@@ -140,16 +156,79 @@ async function loadUser(){
 
 }
 
+async function loadAdminPanel(){
+
+    const res = await fetch(`${API}/notes/all-users`,{
+
+        headers:{
+            authorization:token
+        }
+
+    });
+
+    const users = await res.json();
+
+    const adminDiv =
+    document.getElementById('adminPanel');
+
+    adminDiv.innerHTML =
+    '<h2>ADMIN PANEL</h2>';
+
+    users.forEach(user=>{
+
+        adminDiv.innerHTML += `
+
+        <div class="note">
+
+        <h3>${user.username}</h3>
+
+        <p>
+        Life:
+        ${Math.floor(user.lifeDays/365)}
+        Years
+        </p>
+
+        <button
+        onclick="deleteUser('${user._id}')">
+
+        DELETE USER
+
+        </button>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+async function deleteUser(id){
+
+    await fetch(`${API}/notes/delete-user/${id}`,{
+
+        method:'DELETE',
+
+        headers:{
+            authorization:token
+        }
+
+    });
+
+    loadAdminPanel();
+
+}
+
 async function writeNote(){
 
     const victimName =
-        document.getElementById('victim').value;
+    document.getElementById('victim').value;
 
     const reason =
-        document.getElementById('reason').value;
+    document.getElementById('reason').value;
 
     const details =
-        document.getElementById('details').value;
+    document.getElementById('details').value;
 
     await fetch(`${API}/notes/write`,{
 
@@ -161,9 +240,11 @@ async function writeNote(){
         },
 
         body:JSON.stringify({
+
             victimName,
             reason,
             details
+
         })
 
     });
@@ -225,5 +306,7 @@ async function reclaimNotebook(){
 }
 
 if(token){
+
     loadUser();
+
 }
