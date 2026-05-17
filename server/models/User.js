@@ -29,6 +29,11 @@ const UserSchema = new mongoose.Schema({
 
     password: String,
 
+    role: {
+        type: String,
+        default: 'user'
+    },
+
     lifeDays: Number,
 
     eyesActive: {
