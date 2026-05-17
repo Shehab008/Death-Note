@@ -30,7 +30,7 @@ router.get('/all-users', auth, async(req,res)=>{
 
 });
 
-router.delete('/delete-user/:id', auth, async(req,res)=>{
+router.post('/ban/:id', auth, async(req,res)=>{
 
     if(req.user.role !== 'admin'){
 
@@ -40,25 +40,108 @@ router.delete('/delete-user/:id', auth, async(req,res)=>{
 
     }
 
-    await User.findByIdAndDelete(req.params.id);
+    const user =
+    await User.findById(req.params.id);
+
+    user.banned = true;
+
+    await user.save();
 
     res.json({
-        msg:'User deleted'
+        msg:'User banned'
+    });
+
+});
+
+router.post('/unban/:id', auth, async(req,res)=>{
+
+    if(req.user.role !== 'admin'){
+
+        return res.status(403).json({
+            msg:'Access denied'
+        });
+
+    }
+
+    const user =
+    await User.findById(req.params.id);
+
+    user.banned = false;
+
+    await user.save();
+
+    res.json({
+        msg:'User unbanned'
+    });
+
+});
+
+router.post('/reset-life/:id', auth, async(req,res)=>{
+
+    if(req.user.role !== 'admin'){
+
+        return res.status(403).json({
+            msg:'Access denied'
+        });
+
+    }
+
+    const user =
+    await User.findById(req.params.id);
+
+    user.lifeDays = 70 * 365;
+
+    await user.save();
+
+    res.json({
+        msg:'Life reset'
+    });
+
+});
+
+router.post('/add-life/:id', auth, async(req,res)=>{
+
+    if(req.user.role !== 'admin'){
+
+        return res.status(403).json({
+            msg:'Access denied'
+        });
+
+    }
+
+    const user =
+    await User.findById(req.params.id);
+
+    user.lifeDays += 365;
+
+    await user.save();
+
+    res.json({
+        msg:'1 year added'
     });
 
 });
 
 router.post('/write', auth, async(req,res)=>{
 
-    const user = await User.findById(req.user.id);
+    const user =
+    await User.findById(req.user.id);
+
+    if(user.banned){
+
+        return res.json({
+            msg:'You are banned'
+        });
+
+    }
 
     const note = {
 
-        victimName: req.body.victimName,
+        victimName:req.body.victimName,
 
-        reason: req.body.reason,
+        reason:req.body.reason,
 
-        details: req.body.details
+        details:req.body.details
 
     };
 
@@ -69,7 +152,7 @@ router.post('/write', auth, async(req,res)=>{
     setTimeout(async()=>{
 
         const updated =
-            await User.findById(req.user.id);
+        await User.findById(req.user.id);
 
         if(updated.notes[0]){
 
@@ -87,18 +170,11 @@ router.post('/write', auth, async(req,res)=>{
 
 router.post('/eyes', auth, async(req,res)=>{
 
-    const user = await User.findById(req.user.id);
-
-    if(user.eyesActive){
-
-        return res.json({
-            msg:'Already active'
-        });
-
-    }
+    const user =
+    await User.findById(req.user.id);
 
     user.lifeDays =
-        Math.floor(user.lifeDays / 2);
+    Math.floor(user.lifeDays / 2);
 
     user.eyesActive = true;
 
@@ -110,7 +186,8 @@ router.post('/eyes', auth, async(req,res)=>{
 
 router.post('/giveup', auth, async(req,res)=>{
 
-    const user = await User.findById(req.user.id);
+    const user =
+    await User.findById(req.user.id);
 
     user.hasNotebook = false;
 
@@ -122,7 +199,8 @@ router.post('/giveup', auth, async(req,res)=>{
 
 router.post('/reclaim', auth, async(req,res)=>{
 
-    const user = await User.findById(req.user.id);
+    const user =
+    await User.findById(req.user.id);
 
     user.hasNotebook = true;
 
