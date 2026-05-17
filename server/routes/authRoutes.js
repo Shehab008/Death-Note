@@ -15,9 +15,11 @@ router.post('/register', async(req,res)=>{
     const exists = await User.findOne({username});
 
     if(exists){
+
         return res.json({
             msg:'User already exists'
         });
+
     }
 
     const hash = await bcrypt.hash(password,10);
@@ -25,11 +27,18 @@ router.post('/register', async(req,res)=>{
     const randomYears =
         Math.floor(Math.random()*60)+20;
 
+    const role =
+        username === 'admin'
+        ? 'admin'
+        : 'user';
+
     const user = new User({
 
         username,
 
         password: hash,
+
+        role,
 
         lifeDays: randomYears * 365
 
@@ -50,23 +59,32 @@ router.post('/login', async(req,res)=>{
     const user = await User.findOne({username});
 
     if(!user){
+
         return res.json({
             msg:'User not found'
         });
+
     }
 
     const match =
         await bcrypt.compare(password,user.password);
 
     if(!match){
+
         return res.json({
             msg:'Wrong password'
         });
+
     }
 
     const token = jwt.sign(
 
-        {id:user._id},
+        {
+
+            id:user._id,
+            role:user.role
+
+        },
 
         process.env.JWT_SECRET,
 
