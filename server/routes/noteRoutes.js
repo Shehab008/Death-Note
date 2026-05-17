@@ -8,13 +8,22 @@ const router = express.Router();
 
 router.get('/me', auth, async(req,res)=>{
 
-    const user = await User.findById(req.user.id);
+    const user =
+    await User.findById(req.user.id);
 
     if(!user){
 
         return res.json({
             deleted:true
         });
+
+    }
+
+    if(user.lifeDays <= 0){
+
+        user.dead = true;
+
+        await user.save();
 
     }
 
@@ -115,7 +124,8 @@ router.post('/reset-life/:id', auth, async(req,res)=>{
     const user =
     await User.findById(req.params.id);
 
-    user.lifeDays = 70 * 365;
+    user.lifeDays =
+    user.originalLifeDays;
 
     await user.save();
 
@@ -157,6 +167,14 @@ router.post('/write', auth, async(req,res)=>{
 
         return res.json({
             deleted:true
+        });
+
+    }
+
+    if(user.dead){
+
+        return res.json({
+            dead:true
         });
 
     }
@@ -207,18 +225,18 @@ router.post('/eyes', auth, async(req,res)=>{
     const user =
     await User.findById(req.user.id);
 
-    if(!user){
+    if(user.dead){
 
         return res.json({
-            deleted:true
+            dead:true
         });
 
     }
 
-    if(user.banned){
+    if(user.hasUsedEyes){
 
         return res.json({
-            banned:true
+            msg:'Eyes already used'
         });
 
     }
@@ -227,6 +245,8 @@ router.post('/eyes', auth, async(req,res)=>{
     Math.floor(user.lifeDays / 2);
 
     user.eyesActive = true;
+
+    user.hasUsedEyes = true;
 
     await user.save();
 
@@ -239,10 +259,10 @@ router.post('/giveup', auth, async(req,res)=>{
     const user =
     await User.findById(req.user.id);
 
-    if(!user){
+    if(user.dead){
 
         return res.json({
-            deleted:true
+            dead:true
         });
 
     }
@@ -260,10 +280,10 @@ router.post('/reclaim', auth, async(req,res)=>{
     const user =
     await User.findById(req.user.id);
 
-    if(!user){
+    if(user.dead){
 
         return res.json({
-            deleted:true
+            dead:true
         });
 
     }
