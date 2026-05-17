@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -31,6 +32,11 @@ type="password"
 id="password"
 placeholder="Password">
 
+<input
+type="password"
+id="adminKey"
+placeholder="Admin Key (Optional)">
+
 <button onclick="register()">
 Register
 </button>
@@ -41,7 +47,17 @@ Login
 
 </div>
 
-<div id="app" class="hidden">
+<div id="bannedBox"
+class="hidden">
+
+<h1>
+🚫 YOU ARE BANNED
+</h1>
+
+</div>
+
+<div id="app"
+class="hidden">
 
 <div id="life"></div>
 
@@ -50,6 +66,8 @@ Login
 <button onclick="logout()">
 Logout
 </button>
+
+<div id="userPanel">
 
 <textarea
 id="victim"
@@ -82,9 +100,11 @@ GIVE UP
 RECLAIM
 </button>
 
-<div id="adminPanel"></div>
-
 <div id="notes"></div>
+
+</div>
+
+<div id="adminPanel"></div>
 
 </div>
 
