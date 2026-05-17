@@ -1,6 +1,7 @@
 const API = '/api';
 
-let token = localStorage.getItem('token');
+let token =
+localStorage.getItem('token');
 
 async function register(){
 
@@ -32,7 +33,8 @@ async function register(){
 
     });
 
-    const data = await res.json();
+    const data =
+    await res.json();
 
     alert(data.msg);
 
@@ -62,7 +64,30 @@ async function login(){
 
     });
 
-    const data = await res.json();
+    const data =
+    await res.json();
+
+    if(data.dead){
+
+        document.body.innerHTML =
+
+        `
+
+        <div style="
+        text-align:center;
+        margin-top:100px;
+        color:red;
+        font-size:40px;">
+
+        ☠ YOU ARE DEAD ☠
+
+        </div>
+
+        `;
+
+        return;
+
+    }
 
     if(data.banned){
 
@@ -80,7 +105,10 @@ async function login(){
 
     if(data.token){
 
-        localStorage.setItem('token',data.token);
+        localStorage.setItem(
+            'token',
+            data.token
+        );
 
         token = data.token;
 
@@ -109,7 +137,8 @@ async function loadUser(){
 
     });
 
-    const user = await res.json();
+    const user =
+    await res.json();
 
     if(user.deleted){
 
@@ -119,12 +148,37 @@ async function loadUser(){
 
         `
 
-        <div style="text-align:center;
+        <div style="
+        text-align:center;
         margin-top:100px;
         color:red;
         font-size:40px;">
 
         USER DELETED
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+    if(user.dead){
+
+        localStorage.removeItem('token');
+
+        document.body.innerHTML =
+
+        `
+
+        <div style="
+        text-align:center;
+        margin-top:100px;
+        color:red;
+        font-size:40px;">
+
+        ☠ YOU ARE DEAD ☠
 
         </div>
 
@@ -181,7 +235,7 @@ async function loadUser(){
 
         document
         .getElementById('userPanel')
-        .style.display = 'none';
+        .style.display='none';
 
         loadAdminPanel();
 
@@ -198,7 +252,7 @@ function loadNotes(user){
     const notesDiv =
     document.getElementById('notes');
 
-    notesDiv.innerHTML = '';
+    notesDiv.innerHTML='';
 
     if(user.hasNotebook === false){
 
@@ -247,7 +301,8 @@ async function loadAdminPanel(){
 
     });
 
-    const users = await res.json();
+    const users =
+    await res.json();
 
     const adminDiv =
     document.getElementById('adminPanel');
@@ -276,7 +331,11 @@ async function loadAdminPanel(){
 
         <p>
         Status:
-        ${user.banned ? 'BANNED' : 'ACTIVE'}
+        ${user.dead
+            ? 'DEAD'
+            : user.banned
+            ? 'BANNED'
+            : 'ACTIVE'}
         </p>
 
         <button
@@ -466,9 +525,10 @@ async function writeNote(){
 
     });
 
-    const data = await res.json();
+    const data =
+    await res.json();
 
-    if(data.banned){
+    if(data.dead){
 
         loadUser();
         return;
@@ -497,12 +557,12 @@ async function activateEyes(){
 
     });
 
-    const data = await res.json();
+    const data =
+    await res.json();
 
-    if(data.banned){
+    if(data.msg){
 
-        loadUser();
-        return;
+        alert(data.msg);
     }
 
     loadUser();
