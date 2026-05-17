@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>Death Note</title>
 
 <link rel="stylesheet" href="style.css">
 
 </head>
+
 <body>
 
 <div class="container">
@@ -16,13 +21,23 @@
 
 <div id="authBox">
 
-<input type="text" id="username" placeholder="Username">
+<input
+type="text"
+id="username"
+placeholder="Username">
 
-<input type="password" id="password" placeholder="Password">
+<input
+type="password"
+id="password"
+placeholder="Password">
 
-<button onclick="register()">Register</button>
+<button onclick="register()">
+Register
+</button>
 
-<button onclick="login()">Login</button>
+<button onclick="login()">
+Login
+</button>
 
 </div>
 
@@ -32,19 +47,42 @@
 
 <div id="eyesBadge"></div>
 
-<textarea id="victim"></textarea>
+<button onclick="logout()">
+Logout
+</button>
 
-<textarea id="reason"></textarea>
+<textarea
+id="victim"
+placeholder="Victim Name">
+</textarea>
 
-<textarea id="details"></textarea>
+<textarea
+id="reason"
+placeholder="Death Reason">
+</textarea>
 
-<button onclick="writeNote()">WRITE</button>
+<textarea
+id="details"
+placeholder="Death Details">
+</textarea>
 
-<button onclick="activateEyes()">TAKE EYES</button>
+<button onclick="writeNote()">
+WRITE
+</button>
 
-<button onclick="giveUpNotebook()">GIVE UP</button>
+<button onclick="activateEyes()">
+TAKE EYES
+</button>
 
-<button onclick="reclaimNotebook()">RECLAIM</button>
+<button onclick="giveUpNotebook()">
+GIVE UP
+</button>
+
+<button onclick="reclaimNotebook()">
+RECLAIM
+</button>
+
+<div id="adminPanel"></div>
 
 <div id="notes"></div>
 
