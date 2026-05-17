@@ -39,9 +39,21 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
 
+    dead: {
+        type: Boolean,
+        default: false
+    },
+
+    originalLifeDays: Number,
+
     lifeDays: Number,
 
     eyesActive: {
+        type: Boolean,
+        default: false
+    },
+
+    hasUsedEyes: {
         type: Boolean,
         default: false
     },
@@ -51,13 +63,9 @@ const UserSchema = new mongoose.Schema({
         default: true
     },
 
-    dead: {
-        type: Boolean,
-        default: false
-    },
-
-    notes: [NoteSchema]
+    notes:[NoteSchema]
 
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports =
+mongoose.model('User',UserSchema);
